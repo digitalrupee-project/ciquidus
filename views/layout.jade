@@ -4,11 +4,14 @@ html
     title= settings.title
     link(rel='stylesheet', href='/themes/#{settings.theme}/bootstrap.min.css')
     link(rel='stylesheet', href='/vendor/jqplot/jquery.jqplot.css')
-    link(rel='stylesheet', href='//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css')
-    link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
+    link(rel='stylesheet', href='/stylesheets/dataTables.bootstrap.css')
+    link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.0.13/css/all.css', integrity='sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp' crossorigin='anonymous')
     link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='alternate stylesheet', href='/stylesheets/style_light.css', title='light')
+    meta(name='viewport', content='initial-scale=1')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
     script(src='//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
+    script(async, src='https://www.googletagmanager.com/gtag/js?id=UA-7262737-13')
     script(src='/vendor/jqplot/jquery.jqplot.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.dateAxisRenderer.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.ohlcRenderer.min.js')
@@ -17,12 +20,20 @@ html
     script(src='/vendor/jqplot/plugins/jqplot.barRenderer.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.categoryAxisRenderer.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js')
-    script(src='//cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js')
+    script(src='/javascripts/jquery.dataTables.min.js')
     script(src='//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.js')
-    script(src='//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.js')
+    script(src='/javascripts/dataTables.bootstrap.js')
     script(src='/javascripts/chart.js')
+    script(src='/javascripts/styleswitcher.js')
+    script.
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-7262737-13');
     script.
       $(document).ready(function(){
+        $('[data-toggle=tooltip]').tooltip();
         $('##{active}').addClass('active');
         function update_stats(){
           $.ajax({url: '/ext/summary', success: function(json){
@@ -35,8 +46,24 @@ html
             $("#lastPrice").text(json.data[0].lastPrice.toFixed(8));
             $("#lblConnections").text(json.data[0].connections + ' connections');
             $("#lblBlockcount").text(json.data[0].blockcount + ' blocks');
+            $("#lblMasternodeCount").text(json.data[0].masternodeCount + ' masternodes');
             $("#lblX1").text(' ');
-          }});
+            $("#price_usd").text(json.data[0].lastPriceUsd);
+            $("#cmc_market_cap").text(json.data[0].marketCapUsd);
+            $("#cmc_volume_24h").text(json.data[0].marketVolumeUsd);
+
+            if (json.data[0].cmc) {
+              if (json.data[0].cmc.percent_change_24h) {
+                $("#price_percent_change_value").text(json.data[0].cmc.percent_change_24h);
+                if (json.data[0].cmc.percent_change_24h.substr(0, 1) === '-')
+                  $("#price_percent_change").attr('class', 'text-danger');
+                else
+                  $("#price_percent_change").attr('class', 'text-success');
+              }
+              if (json.data[0].cmc.rank)
+                $("#cmc_rank").text(json.data[0].cmc.rank);
+              }
+            }});
         }
         $('.block-last-next').tooltip({
           animation: true,
@@ -92,7 +119,9 @@ html
             span.icon-bar
             span.icon-bar
             span.icon-bar
-          a.navbar-brand(href='/') #{settings.coin}
+          a.navbar-brand(href='/')
+            img(src='/images/sparks_logo_white.png', style='margin-top: -12px;height: 42px;vertical-align: text-top;')
+            | #{settings.coin}
         .collapse.navbar-collapse(id='navbar-collapse')
           ul.nav.navbar-nav
             li#home
@@ -107,34 +136,46 @@ html
             if settings.display.movement == true
               li#movement
                 a.navbar-link.loading(href='/movement')
-                  span.fa.fa-money
+                  span.fas.fa-money-bill-wave
                   span.menu-text #{settings.locale.menu_movement}
+            if settings.display.masternodes == true
+              li#masternodes
+                a.navbar-link.loading(href='/masternodes')
+                  span.fa.fa-server
+                  span.menu-text #{settings.locale.menu_masternodes}
             if settings.display.network == true
               li#network
                 a.navbar-link(href='/network')
-                  span.fa.fa-share-alt
+                  span.fas.fa-sitemap
                   span.menu-text #{settings.locale.menu_network}
             if settings.display.richlist == true
               li#richlist
                 a.navbar-link(href='/richlist')
-                  span.fa.fa-btc
+                  span.fab.fa-bitcoin
                   span.menu-text #{settings.locale.menu_richlist}
             if settings.display.markets == true
               li#markets
                 a.navbar-link.loading(href='/markets/#{settings.markets.default}')
-                  span.fa.fa-line-chart
+                  span.far.fa-chart-bar
                   span.menu-text #{settings.locale.menu_markets}
+            if settings.display.coininfo == true
+              li#coininfo
+                a.navbar-link.loading(href='/coininfo')
+                  span.fas.fa-info-circle
+                  span.menu-text #{settings.locale.menu_coininfo}
             if settings.display.api == true
               li#info
                 a.navbar-link(href='/info')
-                  span.glyphicon.glyphicon-info-sign
+                  span.fas.glyphicon-info-sign
                   span.menu-text #{settings.locale.menu_api}
-
+    .col-md-10.col-md-offset-1
+        .panel.panel-default(style='background-color:#ff7518;padding:15px;font-weight:bold;')
+          | Please update your Sparks Wallet to the #[a(href="https://github.com/SparksReborn/sparkspay/releases/tag/v0.12.2.5") latest version], this is VERY IMPORTANT!! Instructions can be found on our #[a(href="https://discord.gg/bAE8AMn") Discord Server] :)!
     .col-md-12
       .row.text-center
         .col-md-2.col-md-offset-1
           .panel.panel-default.hidden-sm.hidden-xs
-            .panel-heading
+            .panel-heading.panel-argo
               if settings.nethash_units == 'K'
                 strong #{settings.locale.network} (KH/s)
               else if settings.nethash_units == 'M'
@@ -149,7 +190,7 @@ html
                 strong #{settings.locale.network} (H/s)
             .panel-body
               #hashratepanel
-                span.glyphicon.fa.fa-gears
+                span.glyphicon.fas.fa-cogs
                 if settings.index.difficulty == 'Hybrid'
                   label#hashrate -
                   <br>
@@ -158,11 +199,11 @@ html
                   label#hashrate -
         .col-md-2
           .panel.panel-default.hidden-sm.hidden-xs
-            .panel-heading
+            .panel-heading.panel-argo
               strong #{settings.locale.difficulty}
             .panel-body
               #difficultypanel
-                span.glyphicon.fa.fa-sliders
+                span.glyphicon.fas.fa-sliders-h
                 if settings.index.difficulty == 'Hybrid'
                   label#difficulty -
                   <br>
@@ -171,22 +212,22 @@ html
                   label#difficulty -
         .col-md-2
          .panel.panel-default.hidden-sm.hidden-xs
-            .panel-heading
+            .panel-heading.panel-argo
               strong #{settings.locale.masternodecount}
             .panel-body
               #masternodepanel
                 span.glyphicon.fa.fa-exclamation-triangle
                 label#masternodeCountOffline -
-                label &nbsp;&#x2F;&nbsp;        
+                label &nbsp;&#x2F;&nbsp;
                 label#masternodeCountOnline -
                 span.glyphicon.fa.fa-check-circle
         .col-md-2
           .panel.panel-default.hidden-sm.hidden-xs
-            .panel-heading
+            .panel-heading.panel-argo
               strong #{settings.locale.ex_supply} (#{settings.symbol})
             .panel-body
               #supplypanel
-                span.glyphicon.fa.fa-pie-chart
+                span.glyphicon.fas.fa-coins
                 if settings.index.difficulty == 'Hybrid'
                   label#supply -
                   <br>
@@ -195,7 +236,7 @@ html
                   label#supply -
         .col-md-2
           .panel.panel-default.hidden-sm.hidden-xs
-            .panel-heading
+            .panel-heading.panel-argo
               strong #{settings.markets.exchange} Price
             .panel-body
               #pricepanel
@@ -205,56 +246,77 @@ html
                   <br>
                   label#lblX1
                 else
-                  label#lastPrice -                
-
-      .row.text-center(style='margin-top:10px;margin-bottom:20px;')
+                  label#lastPrice -
+    .col-xs-12.col-md-10.col-md-offset-1
+      .row.text-center(style='margin: 20px 0;')
         form.form-inline(method='post', action='/search')
           #index-search.form-group
-            input.form-control(type='text', name='search', placeholder='#{settings.locale.ex_search_message}', style='min-width:80%;margin-right:5px;')
-            button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+            input.form-control(type='text', name='search', placeholder='#{settings.locale.ex_search_message}', style='min-width:80%;')
+            button.btn.btn-argo.btn-success(type='submit') #{settings.locale.ex_search_button}
     block content
     .navbar.navbar-default.navbar-fixed-bottom.hidden-xs
       .col-md-4
         if settings.display.github
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="GitHub")
               a#github-icon(href="https://github.com/#{settings.github}", target='_blank')
-                span.glyphicon.fa.fa-github
+                span.glyphicon.fab.fa-github
         if settings.display.slack
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="Discord")
               a#slack-icon(href="#{settings.slack}", target='_blank')
-                span.glyphicon.fa.fa-slack
+                span.glyphicon.fab.fa-discord
         if settings.display.twitter
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="Twitter")
               a#twitter-icon(href="https://twitter.com/#{settings.twitter}", target='_blank')
-                span.glyphicon.fa.fa-twitter
+                span.glyphicon.fab.fa-twitter
         if settings.display.facebook
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="Facebook")
               a#facebook-icon(href="https://www.facebook.com/#{settings.facebook}", target='_blank')
-                span.glyphicon.fa.fa-facebook
+                span.glyphicon.fab.fa-facebook
         if settings.display.googleplus
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="Google Plus")
               a#googleplus-icon(href="https://plus.google.com/#{settings.googleplus}", target='_blank')
-                span.glyphicon.fa.fa-google-plus
+                span.glyphicon.fab.fa-google-plus
         if settings.display.bitcointalk
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="BitcoinTalk Announcement")
               a#bitcointalk-icon(href="https://bitcointalk.org/index.php?topic=#{settings.bitcointalk}", target='_blank')
-                span.glyphicon.fa.fa-btc
+                span.glyphicon.fab.fa-btc
         if settings.display.website
           ul.nav.navbar-nav
-            li.pull-left
+            li.pull-left(data-toggle="tooltip", data-placement="top", title="Sparks Website")
               a#website-icon(href="#{settings.website}", target='_blank')
                 span.glyphicon.fa.fa-link
-      .col-md-4
-        ul.nav
-          li.text-center(style='margin-left:80px;margin-right:80px;')
-            p(style='margin-top:15px;')
-              a.navbar-link(href='https://github.com/suprnurd/ciquidus', target='_blank') Ciquidus Alpha
-      span.connections
-        label#lblBlockcount.label.label-default -
-        label#lblConnections.label.label-default -
+        ul.nav.navbar-nav.navbar-switcher.darktheme
+          li(data-toggle="tooltip", data-placement="top", title="Apply Dark Theme")
+            a#dark-icon(href='#', onclick="setActiveStyleSheet('default'); return false;")
+              span.glyphicon.fa.fa-moon
+              p(style='display:inline;font-size:12px;vertical-align:middle;padding-left:5px;') Dark
+        ul.nav.navbar-nav.navbar-switcher.lighttheme
+          li(data-toggle="tooltip", data-placement="top", title="Apply Light Theme")
+            a#light-icon(href='#', onclick="setActiveStyleSheet('light'); return false;")
+              span.glyphicon.fa.fa-sun
+              p(style='display:inline;font-size:12px;vertical-align:middle;padding-left:5px;') Light
+      .col-md-8
+        ul.nav.navbar-nav.pull-right
+          li
+            a#dark-icon(href='#')
+              span.glyphicon.fas.fa-server
+              p(style='display:inline;font-size:12px;vertical-align:middle;')
+                label#lblMasternodeCount.label.label-default -
+        ul.nav.navbar-nav.pull-right
+          li
+            a#light-icon(href='#')
+              span.glyphicon.fas.fa-broadcast-tower
+              p(style='display:inline;font-size:12px;vertical-align:middle;')
+                label#lblConnections.label.label-default -
+        ul.nav.navbar-nav.pull-right
+          li
+            a#light-icon(href='#')
+              span.glyphicon.fas.fa-th
+              p(style='display:inline;font-size:12px;vertical-align:middle;')
+                label#lblBlockcount.label.label-default -

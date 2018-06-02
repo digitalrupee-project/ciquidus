@@ -36,7 +36,7 @@ block content
     $(window).resize(function () { 
       pieWealthDist.replot( { resetAxes: false } );
     });  
-  .col-xs-12.col-md-8
+  .col-xs-12.col-md-6.col-md-offset-1
     .tabpanel
       ul.nav.nav-tabs(role='tablist')
         li.active(role='presentation')
@@ -44,9 +44,9 @@ block content
         li(role='presentation')
           a(href='#received', aria-controls='received', role='tab', data-toggle='tab') Received
     .tab-content
-      #balance.tabpanel.tab-pane.active 
+      #balance.tab-pane.active 
         include ./includes/rl_balance.jade
-      #received.tabpanel.tab-pane
+      #received.tab-pane
         include ./includes/rl_received.jade
   if show_dist == true
     .col-md-4.col-xs-12
