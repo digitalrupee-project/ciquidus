@@ -5,15 +5,15 @@
 */
 {
   // name your instance!
-  "title": "CIQUIDUS",
+  "title": "DRS Explorer",
 
   "address": "127.0.0.1:3001",
 
   // coin name
-  "coin": "Chaincoin",
+  "coin": "DigitalRupees",
 
   // coin symbol
-  "symbol": "CHC",
+  "symbol": "DRS",
 
   // logo
   "logo": "/images/chain_dark-128x128.png",
@@ -47,8 +47,8 @@
   // wallet settings
   "wallet": {
     "host": "localhost",
-    "port": 11995,
-    "user": "chaincoinrpc",
+    "port": 37025,
+    "user": "drsrpc",
     "pass": "123gfjk3R3pCCVjHtbRde2s5kzdf233sa"
   },
 
@@ -129,8 +129,8 @@
   "website": "yourfullwebsiteurl",
 
   //genesis
-  "genesis_tx": "fa6ef9872494fa9662cf0fecf8c0135a6932e76d7a8764e1155207f3205c7c88",
-  "genesis_block": "00000f639db5734b2b861ef8dbccc33aebd7de44d13de000a12d093bcc866c64",
+  "genesis_tx": "808b70083cf4d3a4a998d61cb59858950f385f02a3ef8b4f3008dbb50651802a",
+  "genesis_block": "00000148c035bc6d865b70f94b05bf8cec6872b2f319a94c0035912f800aae94",
 
   //heavy (enable/disable additional heavy features)
   "heavy": false,
